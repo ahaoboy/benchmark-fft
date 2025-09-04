@@ -16,7 +16,6 @@ pub impl Sub for Complex with op_sub(self : Complex, other : Complex) -> Complex
 }
 
 ///|
-#inline
 pub impl Mul for Complex with op_mul(self : Complex, other : Complex) -> Complex {
   {
     real: self.real * other.real - self.imag * other.imag,

@@ -63,13 +63,8 @@ pub fn fft(arr: &mut [Complex]) {
             return;
         }
 
-        let mut a0 = Vec::with_capacity(n / 2);
-        let mut a1 = Vec::with_capacity(n / 2);
-
-        for i in 0..n / 2 {
-            a0.push(arr[2 * i]);
-            a1.push(arr[2 * i + 1]);
-        }
+        let mut a0: Vec<_> = (0..(n / 2)).map(|i| arr[2 * i]).collect();
+        let mut a1: Vec<_> = (0..(n / 2)).map(|i| arr[2 * i + 1]).collect();
 
         _fft(&mut a0);
         _fft(&mut a1);
