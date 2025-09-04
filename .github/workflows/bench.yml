@@ -1,0 +1,52 @@
+name: bench
+
+permissions:
+  contents: write
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  bench:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+            - os: macos-latest
+            - os: windows-latest
+            - os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+      - uses: actions/setup-go@v6
+        with:
+          go-version: 'stable'
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          rustflags: "-A warnings"
+          toolchain: "stable"
+
+      - name: install unix
+        if: "!startsWith(matrix.os, 'windows')"
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+
+      - name: install windows
+        if: "startsWith(matrix.os, 'windows')"
+        run: |
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
+
+      - name: moon version
+        run: |
+          moon version
+
+
+      - name: bench
+        run: |
+          python3 bench_runner.py
