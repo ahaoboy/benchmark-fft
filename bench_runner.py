@@ -202,7 +202,7 @@ def main():
         exe_path=Path("bin") / "main",
     )
 
-    programs = [rust, mbt, swift, go]  # build & run order
+    programs = [rust, mbt, go]  # build & run order
 
     # Build
     if not args.no_build:

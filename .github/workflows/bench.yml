@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v2
+      # - uses: swift-actions/setup-swift@v2
       - uses: actions/setup-go@v6
         with:
           go-version: 'stable'
@@ -32,21 +32,42 @@ jobs:
           rustflags: "-A warnings"
           toolchain: "stable"
 
-      - name: install unix
+      - name: install moon unix
         if: "!startsWith(matrix.os, 'windows')"
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
 
-      - name: install windows
+      - name: install moon windows
         if: "startsWith(matrix.os, 'windows')"
         run: |
           Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; irm https://cli.moonbitlang.com/install/powershell.ps1 | iex
 
-      - name: moon version
+      - name: install ubuntu matplotlib
+        if: "startsWith(matrix.os, 'ubuntu')"
+        run: |
+          sudo apt install python3-matplotlib -y
+
+      - name: install win/mac matplotlib
+        if: "!startsWith(matrix.os, 'windows')"
+        run: |
+          pip3 install matplotlib
+
+      - name: version
         run: |
           moon version
-
+          python --version
+          rustc -Vv
+          go version
 
       - name: bench
         run: |
-          python3 bench_runner.py
+          cd fft/mbt
+          moon update
+          cd ..
+          cd ..
+          python3 bench_runner.py > bench.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-${{ matrix.os }}
+          path: ./bench_avg.png,./bench.txt
