@@ -1,3 +1,8 @@
+use mimalloc::MiMalloc;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
+
 use fft::{fft, Complex};
 use std::f64::consts::PI;
 
@@ -7,14 +12,14 @@ fn round(n: f64) -> f64 {
 }
 
 fn generate_inputs(len: usize) -> Vec<Complex> {
-    (0..len)
-        .map(|i| {
-            let theta = i as f64 / len as f64 * PI;
-            let re = 1.0 * (10.0 * theta).cos() + 0.5 * (25.0 * theta).cos();
-            let im = 1.0 * (10.0 * theta).sin() + 0.5 * (25.0 * theta).sin();
-            Complex::new(round(re), round(im))
-        })
-        .collect()
+    let mut res = Vec::with_capacity(len);
+    for i in 0..len {
+        let theta = i as f64 / len as f64 * PI;
+        let re = 1.0 * (10.0 * theta).cos() + 0.5 * (25.0 * theta).cos();
+        let im = 1.0 * (10.0 * theta).sin() + 0.5 * (25.0 * theta).sin();
+        res.push(Complex::new(round(re), round(im)));
+    }
+    res
 }
 
 fn main() {
