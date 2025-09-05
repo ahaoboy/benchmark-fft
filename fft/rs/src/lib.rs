@@ -1,3 +1,4 @@
+use smallvec::SmallVec;
 use std::f64::consts::PI;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -55,23 +56,19 @@ impl std::ops::Mul<f64> for Complex {
         }
     }
 }
+
 pub fn fft(arr: &mut [Complex]) {
-    fn _fft(arr: &mut [Complex], buf: &mut [Complex]) {
+    fn _fft(arr: &mut [Complex]) {
         let n = arr.len();
         if n == 1 {
             return;
         }
 
-        // 只用 buf[..n/2]
-        for i in 0..n / 2 {
-            buf[i] = arr[2 * i]; // 偶数
-            arr[i] = arr[2 * i + 1]; // 奇数
-        }
-        arr[n / 2..].copy_from_slice(&buf[..n / 2]);
+        let mut a0: SmallVec<[Complex; 16]> = arr.iter().step_by(2).copied().collect();
+        let mut a1: SmallVec<[Complex; 16]> = arr.iter().skip(1).step_by(2).copied().collect();
 
-        let (a0, a1) = arr.split_at_mut(n / 2);
-        _fft(a0, &mut buf[..n / 2]);
-        _fft(a1, &mut buf[..n / 2]);
+        _fft(&mut a0);
+        _fft(&mut a1);
 
         let ang = -2.0 * PI / n as f64;
         let mut w = Complex::new(1.0, 0.0);
@@ -80,14 +77,13 @@ pub fn fft(arr: &mut [Complex]) {
         for i in 0..n / 2 {
             let p = a0[i];
             let q = w * a1[i];
-            a0[i] = p + q;
-            a1[i] = p - q;
+            arr[i] = p + q;
+            arr[i + n / 2] = p - q;
             w = w * wn;
         }
     }
 
-    let mut buf = vec![Complex::new(0., 0.); arr.len() / 2];
-    _fft(arr, &mut buf);
+    _fft(arr);
     let factor = 1.0 / (arr.len() as f64).sqrt();
     for it in arr {
         *it = *it * factor;
