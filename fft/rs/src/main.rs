@@ -7,12 +7,14 @@ fn round(n: f64) -> f64 {
 }
 
 fn generate_inputs(len: usize) -> Vec<Complex> {
-    (0..len).map(|i| {
-        let theta = i as f64 / len as f64 * PI;
-        let re = 1.0 * (10.0 * theta).cos() + 0.5 * (25.0 * theta).cos();
-        let im = 1.0 * (10.0 * theta).sin() + 0.5 * (25.0 * theta).sin();
-        Complex::new(round(re), round(im))
-    }).collect()
+    (0..len)
+        .map(|i| {
+            let theta = i as f64 / len as f64 * PI;
+            let re = 1.0 * (10.0 * theta).cos() + 0.5 * (25.0 * theta).cos();
+            let im = 1.0 * (10.0 * theta).sin() + 0.5 * (25.0 * theta).sin();
+            Complex::new(round(re), round(im))
+        })
+        .collect()
 }
 
 fn main() {
